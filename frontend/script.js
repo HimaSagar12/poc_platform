@@ -26,20 +26,29 @@ window.addEventListener('load', router);
 async function renderHome() {
     try {
         const response = await fetch(`${apiUrl}/pocs`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const pocs = await response.json();
-        app.innerHTML = `
-            <h1>Available POCs</h1>
-            ${pocs.map(poc => `
-                <div class="card">
-                    <h2>${poc.title}</h2>
-                    <p>${poc.description}</p>
-                    <a href="#poc/${poc.id}">View Details</a>
-                </div>
-            `).join('')}
-        `;
+
+        if (Array.isArray(pocs)) {
+            app.innerHTML = `
+                <h1>Available POCs</h1>
+                ${pocs.map(poc => `
+                    <div class="card">
+                        <h2>${poc.title}</h2>
+                        <p>${poc.description}</p>
+                        <a href="#poc/${poc.id}">View Details</a>
+                    </div>
+                `).join('')}
+            `;
+        } else {
+            console.error('API did not return an array of POCs', pocs);
+            app.innerHTML = '<h1>Error: Invalid data received from server</h1>';
+        }
     } catch (error) {
         console.error('Failed to fetch POCs', error);
-                app.innerHTML = '<h1>Error loading POCs</h1>';
+        app.innerHTML = '<h1>Error loading POCs</h1>';
     }
 }
 
