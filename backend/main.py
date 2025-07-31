@@ -6,12 +6,13 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.include_router(users.router)
-app.include_router(pocs.router)
-app.include_router(applications.router)
-app.include_router(comments.router)
-app.include_router(reviews.router)
-app.include_router(token.router)
+# Routers
+app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(pocs.router, prefix="/pocs", tags=["pocs"])
+app.include_router(applications.router, prefix="/applications", tags=["applications"])
+app.include_router(comments.router, prefix="/comments", tags=["comments"])
+app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
+app.include_router(token.router, prefix="", tags=["token"])
 
 @app.get("/")
 def read_root():
