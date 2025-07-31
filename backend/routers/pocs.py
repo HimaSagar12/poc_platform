@@ -5,7 +5,6 @@ from .. import crud, schemas, models
 from ..dependencies import get_db, get_current_user
 
 router = APIRouter(
-    prefix="/pocs",
     tags=["pocs"],
 )
 
