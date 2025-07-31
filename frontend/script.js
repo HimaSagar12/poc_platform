@@ -142,12 +142,16 @@ async function renderDashboard() {
         const allPocs = await pocsResponse.json();
         const myPocs = allPocs.filter(poc => poc.owner.id === userId);
 
-        const appsResponse = await fetch(`${apiUrl}/applications`, {
-             headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!appsResponse.ok) throw new Error('Failed to fetch applications');
-        const allApps = await appsResponse.json();
-        const myApplications = allApps.filter(app => app.applicant.id === userId);
+        let myApplications = [];
+        for (const poc of myPocs) {
+            const appsResponse = await fetch(`${apiUrl}/applications/poc/${poc.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (appsResponse.ok) {
+                const apps = await appsResponse.json();
+                myApplications.push(...apps);
+            }
+        }
 
 
         app.innerHTML = `
