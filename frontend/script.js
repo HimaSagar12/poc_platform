@@ -69,7 +69,7 @@ async function renderHome() {
 }
 
 function renderLogin() {
-    app.innerHTML = `
+    const loginHtml = `
         <h1>Login</h1>
         <form id="login-form">
             <input type="email" id="email" placeholder="Email" required>
@@ -77,6 +77,8 @@ function renderLogin() {
             <button type="submit">Login</button>
         </form>
     `;
+    app.innerHTML = loginHtml;
+
     const form = document.getElementById('login-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -317,7 +319,7 @@ async function renderCreatePoc() {
         const description = document.getElementById('poc-description').value;
 
         try {
-            const response = await fetch(`${apiUrl}/pocs`, {
+            const response = await fetch(`${apiUrl}/pocs/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
