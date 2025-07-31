@@ -200,6 +200,15 @@ async function renderDashboard() {
         `;
         console.log("Generated Dashboard HTML:", dashboardHtml);
         app.innerHTML = dashboardHtml;
+
+        // Attach event listener to the Create New POC button AFTER it's in the DOM
+        const createPocButton = document.getElementById('create-poc-button');
+        if (createPocButton) {
+            createPocButton.addEventListener('click', () => {
+                console.log('Create New POC button clicked, navigating to #create-poc');
+                window.location.hash = '#create-poc';
+            });
+        }
     } catch (error) {
         console.error('Failed to load dashboard', error);
         app.innerHTML = '<h1>Error loading dashboard</h1>';
