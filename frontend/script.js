@@ -11,6 +11,11 @@ const routes = {
 };
 
 function router() {
+    // Proactively clear invalid tokens to ensure correct nav link display
+    const currentToken = localStorage.getItem('token');
+    if (currentToken && currentToken.split('.').length !== 3) { // Simple check for JWT format
+        localStorage.removeItem('token');
+    }
     updateNavLinks();
     const path = window.location.hash || '#home';
     const renderer = routes[path.split('/')[0]];
