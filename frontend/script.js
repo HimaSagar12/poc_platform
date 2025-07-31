@@ -174,7 +174,7 @@ async function renderDashboard() {
 
         const dashboardHtml = `
             <h1>Dashboard</h1>
-            <button onclick="window.location.hash = '#create-poc'" style="display: block; margin-bottom: 1rem; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Create New POC</button>
+            <button onclick="console.log('Create New POC button clicked, setting hash to #create-poc'); window.location.hash = '#create-poc'" class="create-poc-button">Create New POC</button>
             <div class="row">
                 <div class="col">
                     <h2>My Posted POCs</h2>
