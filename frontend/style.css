@@ -1,0 +1,39 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+}
+
+header {
+    background-color: #f0f0f0;
+    padding: 1rem;
+}
+
+nav a {
+    margin-right: 1rem;
+}
+
+main {
+    padding: 1rem;
+}
+
+.card {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 400px;
+}
+
+input, textarea {
+    padding: 0.5rem;
+}
+
+button {
+    padding: 0.5rem;
+    cursor: pointer;
+}

@@ -41,22 +41,13 @@ Before you begin, ensure you have the following installed on your system:
     ```
     The backend API will now be running at `http://127.0.0.1:8000`.
 
-## Frontend Setup (React)
+## Frontend Setup (Vanilla JS)
 
-1.  **Open a new terminal window.**
-
-2.  **Navigate to the frontend directory:**
+1.  **Navigate to the frontend directory:**
     ```bash
     cd poc_recruitment_platform/frontend
     ```
 
-3.  **Install the required Node.js packages:**
-    ```bash
-    npm install
-    ```
+2.  **Open the `index.html` file in your web browser.**
 
-4.  **Start the React development server:**
-    ```bash
-    npm run dev
-    ```
-    The frontend application will now be running and accessible in your web browser, typically at `http://localhost:5173`.
+    That's it! There's no build step or development server required. The application will run directly in your browser and connect to the backend API, which must be running.
