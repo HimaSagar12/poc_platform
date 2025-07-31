@@ -18,7 +18,9 @@ function router() {
     }
     updateNavLinks();
     const path = window.location.hash || '#home';
+    console.log('Router: Current hash path:', path);
     const renderer = routes[path.split('/')[0]];
+    console.log('Router: Renderer function:', renderer);
     if (renderer) {
         renderer();
     } else {
