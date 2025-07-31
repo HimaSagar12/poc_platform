@@ -161,7 +161,7 @@ async function renderDashboard() {
         }
 
 
-        app.innerHTML = `
+        const dashboardHtml = `
             <h1>Dashboard</h1>
             <button onclick="window.location.hash = '#create-poc'" style="display: block; margin-bottom: 1rem; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Create New POC</button>
             <div class="row">
@@ -187,6 +187,8 @@ async function renderDashboard() {
                 </div>
             </div>
         `;
+        console.log("Generated Dashboard HTML:", dashboardHtml);
+        app.innerHTML = dashboardHtml;
     } catch (error) {
         console.error('Failed to load dashboard', error);
         app.innerHTML = '<h1>Error loading dashboard</h1>';
