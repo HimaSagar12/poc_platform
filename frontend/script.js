@@ -17,7 +17,15 @@ function router() {
         localStorage.removeItem('token');
     }
     updateNavLinks();
-    const path = window.location.hash || '#home';
+
+    let path = window.location.hash;
+    // If a token exists, always go to dashboard unless explicitly navigating to login/register
+    if (localStorage.getItem('token') && path !== '#login' && path !== '#register') {
+        path = '#dashboard';
+    } else if (!path) { // Default to home if no hash and no token
+        path = '#home';
+    }
+
     console.log('Router: Current hash path:', path);
     const renderer = routes[path.split('/')[0]];
     console.log('Router: Renderer function:', renderer);
