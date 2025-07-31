@@ -127,6 +127,7 @@ function renderRegister() {
 }
 
 async function renderDashboard() {
+    console.log('renderDashboard called.');
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.hash = '#login';
@@ -162,7 +163,7 @@ async function renderDashboard() {
 
         app.innerHTML = `
             <h1>Dashboard</h1>
-            <button onclick="window.location.hash = '#create-poc'">Create New POC</button>
+            <button onclick="window.location.hash = '#create-poc'" style="display: block; margin-bottom: 1rem; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Create New POC</button>
             <div class="row">
                 <div class="col">
                     <h2>My Posted POCs</h2>
