@@ -340,4 +340,8 @@ function updateNavLinks() {
         registerLink.style.display = 'block';
         dashboardLink.style.display = 'none';
     }
+    console.log('Nav Links Display State:');
+    console.log('  Login Link:', loginLink.style.display);
+    console.log('  Register Link:', registerLink.style.display);
+    console.log('  Dashboard Link:', dashboardLink.style.display);
 }
