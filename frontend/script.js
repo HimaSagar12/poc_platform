@@ -84,6 +84,7 @@ function renderLogin() {
                 const data = await response.json();
                 localStorage.setItem('token', data.access_token);
                 window.location.hash = '#dashboard';
+                console.log('Login successful, navigating to:', window.location.hash);
             } else {
                 alert('Login failed');
             }
