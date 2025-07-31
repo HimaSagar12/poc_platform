@@ -6,7 +6,8 @@ const routes = {
     '#login': renderLogin,
     '#register': renderRegister,
     '#dashboard': renderDashboard,
-    '#poc': renderPocDetails
+    '#poc': renderPocDetails,
+    '#create-poc': renderCreatePoc
 };
 
 function router() {
@@ -156,6 +157,7 @@ async function renderDashboard() {
 
         app.innerHTML = `
             <h1>Dashboard</h1>
+            <button onclick="window.location.hash = '#create-poc'">Create New POC</button>
             <div class="row">
                 <div class="col">
                     <h2>My Posted POCs</h2>
@@ -260,6 +262,54 @@ async function renderPocDetails() {
         console.error('Failed to load POC details', error);
         app.innerHTML = '<h1>Error loading POC details</h1>';
     }
+}
+
+async function renderCreatePoc() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.hash = '#login';
+        return;
+    }
+
+    app.innerHTML = `
+        <h1>Create New POC</h1>
+        <form id="create-poc-form">
+            <label for="poc-title">Title:</label>
+            <input type="text" id="poc-title" required>
+            <label for="poc-description">Description:</label>
+            <textarea id="poc-description" rows="5" required></textarea>
+            <button type="submit">Create POC</button>
+        </form>
+    `;
+
+    const form = document.getElementById('create-poc-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('poc-title').value;
+        const description = document.getElementById('poc-description').value;
+
+        try {
+            const response = await fetch(`${apiUrl}/pocs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ title, description })
+            });
+
+            if (response.ok) {
+                alert('POC created successfully!');
+                window.location.hash = '#dashboard';
+            } else {
+                const errorData = await response.json();
+                alert(`Failed to create POC: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error creating POC', error);
+            alert('An error occurred while creating the POC.');
+        }
+    });
 }
 
 function updateNavLinks() {
