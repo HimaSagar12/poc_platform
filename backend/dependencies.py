@@ -4,10 +4,7 @@ from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from . import crud, models, schemas
 from .database import SessionLocal
-
-SECRET_KEY = "your-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from .security import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

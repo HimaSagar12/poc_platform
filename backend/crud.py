@@ -78,8 +78,11 @@ def create_review(db: Session, review: schemas.ReviewCreate, reviewer_id: int):
     # Update average rating
     reviewee = get_user(db, review.reviewee_id)
     reviews = db.query(models.Review).filter(models.Review.reviewee_id == review.reviewee_id).all()
-    total_rating = sum([r.rating for r in reviews])
-    reviewee.average_rating = total_rating / len(reviews)
+    if reviews:
+        total_rating = sum([r.rating for r in reviews])
+        reviewee.average_rating = total_rating / len(reviews)
+    else:
+        reviewee.average_rating = 0.0
     db.commit()
     db.refresh(db_review)
 
