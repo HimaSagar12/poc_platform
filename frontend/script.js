@@ -105,7 +105,7 @@ function renderLogin() {
 }
 
 function renderRegister() {
-    app.innerHTML = `
+    const registerHtml = `
         <h1>Register</h1>
         <form id="register-form">
             <input type="text" id="fullName" placeholder="Full Name" required>
@@ -115,6 +115,8 @@ function renderRegister() {
             <button type="submit">Register</button>
         </form>
     `;
+    app.innerHTML = registerHtml;
+
     const form = document.getElementById('register-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
