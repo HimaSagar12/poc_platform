@@ -323,6 +323,8 @@ function updateNavLinks() {
     const registerLink = document.getElementById('register-link');
     const dashboardLink = document.getElementById('dashboard-link');
 
+    console.log('updateNavLinks called. Token:', token);
+
     if (token) {
         loginLink.style.display = 'none';
         registerLink.style.display = 'none';
