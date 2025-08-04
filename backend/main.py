@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
 from .routers import users, pocs, applications, comments, reviews, token
 
@@ -24,8 +25,6 @@ app.include_router(pocs.router, prefix="/pocs", tags=["pocs"])
 app.include_router(applications.router, prefix="/applications", tags=["applications"])
 app.include_router(comments.router, prefix="/comments", tags=["comments"])
 app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
-app.include_router(token.router, prefix="", tags=["token"])
+app.include_router(token.router, prefix="/token", tags=["token"])
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the POC Recruitment Platform"}
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")

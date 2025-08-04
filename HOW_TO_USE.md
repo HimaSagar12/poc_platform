@@ -41,13 +41,12 @@ Before you begin, ensure you have the following installed on your system:
     ```
     The backend API will now be running at `http://127.0.0.1:8000`.
 
-## Frontend Setup (Vanilla JS)
+## Frontend Setup (PyReact)
 
-1.  **Navigate to the frontend directory:**
-    ```bash
-    cd poc_recruitment_platform/frontend
-    ```
+The frontend is now served by the backend.
 
-2.  **Open the `index.html` file in your web browser.**
+1.  **Ensure the backend server is running.**
 
-    That's it! There's no build step or development server required. The application will run directly in your browser and connect to the backend API, which must be running.
+2.  **Open your web browser and navigate to `http://127.0.0.1:8000`**
+
+    The application will load, and you can interact with it through the browser.
