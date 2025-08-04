@@ -1,9 +1,10 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
-pydantic
+pydantic==1.10.13
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 alembic
 pydantic-settings
+brython

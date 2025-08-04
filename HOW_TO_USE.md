@@ -43,10 +43,18 @@ Before you begin, ensure you have the following installed on your system:
 
 ## Frontend Setup (PyReact)
 
-The frontend is now served by the backend.
+1.  **Navigate to the frontend directory:**
+    ```bash
+    cd poc_recruitment_platform/frontend
+    ```
 
-1.  **Ensure the backend server is running.**
+2.  **Pre-compile the Python code:**
+    ```bash
+    python -m brython --make_modules
+    ```
 
-2.  **Open your web browser and navigate to `http://127.0.0.1:8000`**
+3.  **Ensure the backend server is running.**
+
+4.  **Open your web browser and navigate to `http://127.0.0.1:8000`**
 
     The application will load, and you can interact with it through the browser.
