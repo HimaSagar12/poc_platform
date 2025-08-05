@@ -107,7 +107,7 @@ elif st.session_state.page == "login":
         if submitted:
             if login(email, password):
                 st.session_state.page = "dashboard"
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Invalid email or password")
 
@@ -123,7 +123,7 @@ elif st.session_state.page == "register":
             if register(full_name, email, designation, password):
                 st.success("Registration successful! Please login.")
                 st.session_state.page = "login"
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Registration failed")
 
@@ -151,7 +151,7 @@ elif st.session_state.page == "dashboard":
         if submitted:
             if create_poc(title, description):
                 st.success("POC created successfully!")
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Failed to create POC")
 
@@ -176,6 +176,6 @@ elif st.session_state.page == "poc_details":
                 if submitted:
                     if post_comment(poc_id, text):
                         st.success("Comment posted successfully!")
-                        st.experimental_rerun()
+                        st.rerun()
                     else:
                         st.error("Failed to post comment")
