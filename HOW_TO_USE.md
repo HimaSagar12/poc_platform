@@ -6,7 +6,6 @@ This document provides instructions on how to set up and run the backend and fro
 
 Before you begin, ensure you have the following installed on your system:
 - Python 3.8+ and `pip`
-- Node.js 18+ and `npm`
 
 ## Backend Setup (FastAPI)
 
@@ -41,20 +40,35 @@ Before you begin, ensure you have the following installed on your system:
     ```
     The backend API will now be running at `http://127.0.0.1:8000`.
 
-## Frontend Setup (PyReact)
+## Frontend Setup (Streamlit)
 
 1.  **Navigate to the frontend directory:**
     ```bash
     cd poc_recruitment_platform/frontend
     ```
 
-2.  **Pre-compile the Python code:**
+2.  **Create a Python virtual environment (optional but recommended):**
     ```bash
-    python -m brython --make_modules
+    python -m venv venv
     ```
 
-3.  **Ensure the backend server is running.**
+3.  **Activate the virtual environment:**
+    - On **macOS/Linux**:
+      ```bash
+      source venv/bin/activate
+      ```
+    - On **Windows**:
+      ```bash
+      .\venv\Scripts\activate
+      ```
 
-4.  **Open your web browser and navigate to `http://127.0.0.1:8000`**
+4.  **Install the required Python packages:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-    The application will load, and you can interact with it through the browser.
+5.  **Run the Streamlit app:**
+    ```bash
+    streamlit run main.py
+    ```
+    The frontend application will now be running at `http://localhost:8501`.
