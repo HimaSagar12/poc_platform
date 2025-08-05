@@ -1,22 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POC Recruitment Platform</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<script type="text/javascript" src="brython.js"></script>
+<script type="text/javascript" src="brython_stdlib.js"></script>
 </head>
+
 <body>
-    <header>
-        <nav>
-            <a href="#home" id="home-link">Home</a>
-            <a href="#login" id="login-link">Login</a>
-            <a href="#register" id="register-link">Register</a>
-            <a href="#" id="dashboard-link" style="display: none;">Dashboard</a>
-        </nav>
-    </header>
-    <main id="app-root"></main>
-    <script src="brython_modules.js"></script>
-    <script type="text/python" src="main.py"></script>
+<script type="text/python">
+from browser import document
+
+document <= "Hello"
+</script>
 </body>
+
 </html>
