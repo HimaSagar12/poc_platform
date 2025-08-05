@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from .. import crud, schemas
 from ..dependencies import get_db
-from ..security import create_access_token, pwd_context, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 
 router = APIRouter(tags=["token"])
@@ -11,7 +11,7 @@ router = APIRouter(tags=["token"])
 @router.post("/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, email=form_data.username)
-    if not user or not pwd_context.verify(form_data.password, user.hashed_password):
+    if not user or not form_data.password == user.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
