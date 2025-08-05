@@ -3,11 +3,9 @@ from sqlalchemy.orm import Session
 from .. import crud, schemas, models
 from ..dependencies import get_db, get_current_user
 
-router = APIRouter(
-    tags=["users"],
-)
+router = APIRouter()
 
-@router.post("/", response_model=schemas.User)
+@router.post("", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
