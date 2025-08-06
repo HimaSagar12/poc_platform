@@ -25,8 +25,8 @@ def get_poc(db: Session, poc_id: int):
 def get_pocs(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.POC).offset(skip).limit(limit).all()
 
-def create_poc(db: Session, poc: schemas.POCCreate, owner_id: int):
-    db_poc = models.POC(**poc.dict(), owner_id=owner_id)
+def create_poc(db: Session, poc: schemas.POCCreate):
+    db_poc = models.POC(**poc.dict())
     db.add(db_poc)
     db.commit()
     db.refresh(db_poc)
