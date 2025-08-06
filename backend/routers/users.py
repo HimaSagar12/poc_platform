@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from .. import crud, schemas, models
 from ..dependencies import get_db
-from ..security import pwd_context
+
 
 router = APIRouter()
 

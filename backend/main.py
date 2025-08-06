@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
-from .routers import users, pocs, applications, comments, reviews, token
+from .routers import users, pocs, applications, comments, reviews
 
 Base.metadata.create_all(bind=engine)
 
