@@ -55,8 +55,8 @@ def update_application_status(db: Session, application_id: int, status: str):
     return db_application
 
 # Comment CRUD
-def create_comment(db: Session, comment: schemas.CommentCreate, author_id: int):
-    db_comment = models.Comment(**comment.dict(), author_id=author_id)
+def create_comment(db: Session, comment: schemas.CommentCreate):
+    db_comment = models.Comment(**comment.dict())
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)
