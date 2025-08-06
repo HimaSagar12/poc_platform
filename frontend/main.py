@@ -1,4 +1,3 @@
-
 import streamlit as st
 import requests
 import pandas as pd
@@ -7,13 +6,6 @@ import pandas as pd
 API_URL = "http://127.0.0.1:8000"
 
 # --- Helper Functions ---
-def login(email, password):
-    response = requests.post(f"{API_URL}/token", data={"username": email, "password": password})
-    if response.status_code == 200:
-        st.session_state.token = response.json()["access_token"]
-        return True
-    return False
-
 def register(full_name, email, designation, password):
     response = requests.post(f"{API_URL}/users", json={"full_name": full_name, "email": email, "designation": designation, "password": password})
     return response.status_code == 200
@@ -36,26 +28,16 @@ def get_comments(poc_id):
         return response.json()
     return []
 
-def post_comment(poc_id, text):
-    headers = {"Authorization": f"Bearer {st.session_state.token}"}
-    response = requests.post(f"{API_URL}/comments", headers=headers, json={"text": text, "poc_id": poc_id})
+def post_comment(poc_id, text, author_id):
+    response = requests.post(f"{API_URL}/comments", json={"text": text, "poc_id": poc_id, "author_id": author_id})
     return response.status_code == 200
 
-def create_poc(title, description):
-    headers = {"Authorization": f"Bearer {st.session_state.token}"}
-    response = requests.post(f"{API_URL}/pocs", headers=headers, json={"title": title, "description": description})
+def create_poc(title, description, owner_id):
+    response = requests.post(f"{API_URL}/pocs", json={"title": title, "description": description, "owner_id": owner_id})
     return response.status_code == 200
 
-def get_my_pocs():
-    headers = {"Authorization": f"Bearer {st.session_state.token}"}
-    response = requests.get(f"{API_URL}/users/me/pocs", headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    return []
-
-def get_my_applications():
-    headers = {"Authorization": f"Bearer {st.session_state.token}"}
-    response = requests.get(f"{API_URL}/users/me/applications", headers=headers)
+def get_users():
+    response = requests.get(f"{API_URL}/users")
     if response.status_code == 200:
         return response.json()
     return []
@@ -64,26 +46,17 @@ def get_my_applications():
 st.set_page_config(page_title="Recruitment Platform", layout="wide")
 
 # --- State Management ---
-if "token" not in st.session_state:
-    st.session_state.token = None
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
 # --- Navigation ---
 st.sidebar.title("Navigation")
-if st.session_state.token:
-    if st.sidebar.button("Dashboard"):
-        st.session_state.page = "dashboard"
-    if st.sidebar.button("Logout"):
-        st.session_state.token = None
-        st.session_state.page = "home"
-else:
-    if st.sidebar.button("Home"):
-        st.session_state.page = "home"
-    if st.sidebar.button("Login"):
-        st.session_state.page = "login"
-    if st.sidebar.button("Register"):
-        st.session_state.page = "register"
+if st.sidebar.button("Home"):
+    st.session_state.page = "home"
+if st.sidebar.button("Register User"):
+    st.session_state.page = "register_user"
+if st.sidebar.button("Create POC"):
+    st.session_state.page = "create_poc"
 
 # --- Page Content ---
 if st.session_state.page == "home":
@@ -98,21 +71,8 @@ if st.session_state.page == "home":
                     st.session_state.page = "poc_details"
                     st.session_state.poc_id = poc["id"]
 
-elif st.session_state.page == "login":
-    st.title("Login")
-    with st.form("login_form"):
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Login")
-        if submitted:
-            if login(email, password):
-                st.session_state.page = "dashboard"
-                st.rerun()
-            else:
-                st.error("Invalid email or password")
-
-elif st.session_state.page == "register":
-    st.title("Register")
+elif st.session_state.page == "register_user":
+    st.title("Register New User")
     with st.form("register_form"):
         full_name = st.text_input("Full Name")
         email = st.text_input("Email")
@@ -121,35 +81,24 @@ elif st.session_state.page == "register":
         submitted = st.form_submit_button("Register")
         if submitted:
             if register(full_name, email, designation, password):
-                st.success("Registration successful! Please login.")
-                st.session_state.page = "login"
+                st.success("Registration successful!")
                 st.rerun()
             else:
                 st.error("Registration failed")
 
-elif st.session_state.page == "dashboard":
-    st.title("Dashboard")
-    st.header("My Posted POCs")
-    my_pocs = get_my_pocs()
-    if my_pocs:
-        st.dataframe(pd.DataFrame(my_pocs))
-    else:
-        st.write("You haven't posted any POCs yet.")
+elif st.session_state.page == "create_poc":
+    st.title("Create New POC")
+    users = get_users()
+    user_options = {user["full_name"]: user["id"] for user in users}
+    selected_user_name = st.selectbox("Select Owner", list(user_options.keys()))
+    owner_id = user_options[selected_user_name]
 
-    st.header("My Applications")
-    my_applications = get_my_applications()
-    if my_applications:
-        st.dataframe(pd.DataFrame(my_applications))
-    else:
-        st.write("You haven't applied to any POCs yet.")
-
-    st.header("Create New POC")
     with st.form("create_poc_form"):
         title = st.text_input("Title")
         description = st.text_area("Description")
         submitted = st.form_submit_button("Create POC")
         if submitted:
-            if create_poc(title, description):
+            if create_poc(title, description, owner_id):
                 st.success("POC created successfully!")
                 st.rerun()
             else:
@@ -169,13 +118,17 @@ elif st.session_state.page == "poc_details":
             for comment in comments:
                 st.write(f"**{comment['author']['full_name']}**: {comment['text']}")
 
-        if st.session_state.token:
-            with st.form("comment_form"):
-                text = st.text_area("Write a comment...")
-                submitted = st.form_submit_button("Post Comment")
-                if submitted:
-                    if post_comment(poc_id, text):
-                        st.success("Comment posted successfully!")
-                        st.rerun()
-                    else:
-                        st.error("Failed to post comment")
+        users = get_users()
+        user_options = {user["full_name"]: user["id"] for user in users}
+        selected_user_name = st.selectbox("Comment as", list(user_options.keys()))
+        author_id = user_options[selected_user_name]
+
+        with st.form("comment_form"):
+            text = st.text_area("Write a comment...")
+            submitted = st.form_submit_button("Post Comment")
+            if submitted:
+                if post_comment(poc_id, text, author_id):
+                    st.success("Comment posted successfully!")
+                    st.rerun()
+                else:
+                    st.error("Failed to post comment")

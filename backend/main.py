@@ -25,6 +25,6 @@ app.include_router(pocs.router, prefix="/pocs", tags=["pocs"])
 app.include_router(applications.router, prefix="/applications", tags=["applications"])
 app.include_router(comments.router, prefix="/comments", tags=["comments"])
 app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
-app.include_router(token.router, prefix="/token", tags=["token"])
+
 
 app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")

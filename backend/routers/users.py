@@ -19,9 +19,7 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
 
-@router.get("/me", response_model=schemas.User)
-def read_users_me(current_user: models.User = Depends(get_current_user)):
-    return current_user
+
 
 @router.get("/{user_id}", response_model=schemas.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):

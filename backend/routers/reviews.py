@@ -5,16 +5,13 @@ from ..dependencies import get_db, get_current_user
 
 router = APIRouter(
     prefix="/reviews",
-    tags=["reviews"],
 )
 
 @router.post("/", response_model=schemas.Review)
-def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db)):
     poc = crud.get_poc(db, review.poc_id)
     if not poc:
         raise HTTPException(status_code=404, detail="POC not found")
-    if poc.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to review for this POC")
     
     application = db.query(models.Application).filter(
         models.Application.poc_id == review.poc_id,
@@ -24,4 +21,4 @@ def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db), c
     if not application or application.status != "Selected":
         raise HTTPException(status_code=403, detail="Can only review applicants with 'Selected' status")
 
-    return crud.create_review(db=db, review=review, reviewer_id=current_user.id)
+    return crud.create_review(db=db, review=review, reviewer_id=review.reviewer_id)

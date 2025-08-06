@@ -36,7 +36,7 @@ class ApplicationBase(BaseModel):
     poc_id: int
 
 class ApplicationCreate(ApplicationBase):
-    pass
+    applicant_id: Optional[int] = None
 
 class Application(ApplicationBase):
     id: int
@@ -52,7 +52,7 @@ class CommentBase(BaseModel):
     parent_id: Optional[int] = None
 
 class CommentCreate(CommentBase):
-    pass
+    author_id: Optional[int] = None
 
 class Comment(CommentBase):
     id: int
@@ -70,7 +70,7 @@ class ReviewBase(BaseModel):
     poc_id: int
 
 class ReviewCreate(ReviewBase):
-    pass
+    reviewer_id: Optional[int] = None
 
 class Review(ReviewBase):
     id: int
@@ -79,9 +79,4 @@ class Review(ReviewBase):
     class Config:
         orm_mode = True
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
 
-class TokenData(BaseModel):
-    email: Optional[str] = None

@@ -7,8 +7,8 @@ from ..dependencies import get_db, get_current_user
 router = APIRouter()
 
 @router.post("/", response_model=schemas.POC)
-def create_poc(poc: schemas.POCCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    return crud.create_poc(db=db, poc=poc, owner_id=current_user.id)
+def create_poc(poc: schemas.POCCreate, db: Session = Depends(get_db)):
+    return crud.create_poc(db=db, poc=poc, owner_id=poc.owner_id)
 
 @router.get("", response_model=List[schemas.POC])
 def read_pocs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
