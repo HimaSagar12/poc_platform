@@ -8,7 +8,7 @@ router = APIRouter(
     prefix="/comments",
 )
 
-@router.post("/", response_model=schemas.Comment)
+@router.post("", response_model=schemas.Comment)
 def create_comment(comment: schemas.CommentCreate, db: Session = Depends(get_db)):
     return crud.create_comment(db=db, comment=comment, author_id=comment.author_id)
 
