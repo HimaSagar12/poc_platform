@@ -36,6 +36,10 @@ def create_poc(title, description, owner_id):
     response = requests.post(f"{API_URL}/pocs", json={"title": title, "description": description, "owner_id": owner_id})
     return response.status_code == 200
 
+def create_application(poc_id, applicant_id):
+    response = requests.post(f"{API_URL}/applications", json={"poc_id": poc_id, "applicant_id": applicant_id})
+    return response.status_code == 200
+
 def get_users():
     response = requests.get(f"{API_URL}/users")
     if response.status_code == 200:
@@ -120,8 +124,8 @@ elif st.session_state.page == "poc_details":
 
         users = get_users()
         user_options = {user["full_name"]: user["id"] for user in users}
-        selected_user_name = st.selectbox("Comment as", list(user_options.keys()))
-        author_id = user_options[selected_user_name]
+        selected_author_name = st.selectbox("Comment as", list(user_options.keys()), key="comment_author")
+        author_id = user_options[selected_author_name]
 
         with st.form("comment_form"):
             text = st.text_area("Write a comment...")
@@ -132,3 +136,14 @@ elif st.session_state.page == "poc_details":
                     st.rerun()
                 else:
                     st.error("Failed to post comment")
+
+        st.header("Apply for this POC")
+        selected_applicant_name = st.selectbox("Apply as", list(user_options.keys()), key="apply_applicant")
+        applicant_id = user_options[selected_applicant_name]
+
+        if st.button("Apply for this POC"):
+            if create_application(poc_id, applicant_id):
+                st.success("Application submitted successfully!")
+                st.rerun()
+            else:
+                st.error("Failed to submit application.")
