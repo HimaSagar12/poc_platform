@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.post("", response_model=schemas.POC)
 def create_poc(poc: schemas.POCCreate, db: Session = Depends(get_db)):
-    return crud.create_poc(db=db, poc=poc, owner_id=poc.owner_id)
+    return crud.create_poc(db=db, poc=poc)
 
 @router.get("", response_model=List[schemas.POC])
 def read_pocs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
