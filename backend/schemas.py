@@ -22,7 +22,7 @@ class POCBase(BaseModel):
     description: str
 
 class POCCreate(POCBase):
-    pass
+    owner_id: Optional[int] = None
 
 class POC(POCBase):
     id: int
