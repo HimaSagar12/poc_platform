@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.post("/comments", response_model=schemas.Comment)
 def create_comment(comment: schemas.CommentCreate, db: Session = Depends(get_db)):
-    return crud.create_comment(db=db, comment=comment, author_id=comment.author_id)
+    return crud.create_comment(db=db, comment=comment)
 
 @router.get("/comments/poc/{poc_id}", response_model=List[schemas.Comment])
 def read_comments_for_poc(poc_id: int, db: Session = Depends(get_db)):
