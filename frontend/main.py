@@ -79,6 +79,30 @@ st.set_page_config(page_title="Recruitment Platform", layout="wide")
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
+# Global user selection
+users = get_users()
+user_names = {user["full_name"]: user["id"] for user in users}
+if "current_user_id" not in st.session_state:
+    st.session_state.current_user_id = None
+    st.session_state.current_user_name = "Select User"
+
+st.sidebar.title("Select User")
+selected_user_name_sidebar = st.sidebar.selectbox(
+    "Choose your account:",
+    ["Select User"] + list(user_names.keys()),
+    index=0,
+    key="global_user_select"
+)
+
+if selected_user_name_sidebar != "Select User":
+    st.session_state.current_user_id = user_names[selected_user_name_sidebar]
+    st.session_state.current_user_name = selected_user_name_sidebar
+else:
+    st.session_state.current_user_id = None
+    st.session_state.current_user_name = "Select User"
+
+st.sidebar.write(f"Current User: **{st.session_state.current_user_name}**")
+
 # --- Navigation ---
 st.sidebar.title("Navigation")
 if st.sidebar.button("Home"):
@@ -124,21 +148,20 @@ elif st.session_state.page == "register_user":
 
 elif st.session_state.page == "create_poc":
     st.title("Create New POC")
-    users = get_users()
-    user_options = {user["full_name"]: user["id"] for user in users}
-    selected_user_name = st.selectbox("Select Owner", list(user_options.keys()))
-    owner_id = user_options[selected_user_name]
-
-    with st.form("create_poc_form"):
-        title = st.text_input("Title")
-        description = st.text_area("Description")
-        submitted = st.form_submit_button("Create POC")
-        if submitted:
-            if create_poc(title, description, owner_id):
-                st.success("POC created successfully!")
-                st.rerun()
-            else:
-                st.error("Failed to create POC")
+    if st.session_state.current_user_id:
+        owner_id = st.session_state.current_user_id
+        with st.form("create_poc_form"):
+            title = st.text_input("Title")
+            description = st.text_area("Description")
+            submitted = st.form_submit_button("Create POC")
+            if submitted:
+                if create_poc(title, description, owner_id):
+                    st.success("POC created successfully!")
+                    st.rerun()
+                else:
+                    st.error("Failed to create POC")
+    else:
+        st.warning("Please select a user from the sidebar to create a POC.")
 
 elif st.session_state.page == "poc_details":
     poc_id = st.session_state.poc_id
@@ -154,60 +177,61 @@ elif st.session_state.page == "poc_details":
             for comment in comments:
                 st.write(f"**{comment['author']['full_name']}**: {comment['text']}")
 
-        users = get_users()
-        user_options = {user["full_name"]: user["id"] for user in users}
-        selected_author_name = st.selectbox("Comment as", list(user_options.keys()), key="comment_author")
-        author_id = user_options[selected_author_name]
-
-        with st.form("comment_form"):
-            text = st.text_area("Write a comment...")
-            submitted = st.form_submit_button("Post Comment")
-            if submitted:
-                if post_comment(poc_id, text, author_id):
-                    st.success("Comment posted successfully!")
-                    st.rerun()
-                else:
-                    st.error("Failed to post comment")
+        if st.session_state.current_user_id:
+            author_id = st.session_state.current_user_id
+            with st.form("comment_form"):
+                text = st.text_area("Write a comment...")
+                submitted = st.form_submit_button("Post Comment")
+                if submitted:
+                    if post_comment(poc_id, text, author_id):
+                        st.success("Comment posted successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to post comment")
+        else:
+            st.warning("Please select a user from the sidebar to post a comment.")
 
         st.header("Apply for this POC")
-        selected_applicant_name = st.selectbox("Apply as", list(user_options.keys()), key="apply_applicant")
-        applicant_id = user_options[selected_applicant_name]
-
-        if st.button("Apply for this POC"):
-            if create_application(poc_id, applicant_id):
-                st.success("Application submitted successfully!")
-                st.rerun()
-            else:
-                st.error("Failed to submit application.")
+        if st.session_state.current_user_id:
+            applicant_id = st.session_state.current_user_id
+            if st.button("Apply for this POC"):
+                if create_application(poc_id, applicant_id):
+                    st.success("Application submitted successfully!")
+                    st.rerun()
+                else:
+                    st.error("Failed to submit application.")
+        else:
+            st.warning("Please select a user from the sidebar to apply for this POC.")
 
         # Application Management for POC Owner
         st.header("Manage Applications")
-        users = get_users()
-        user_options = {user["full_name"]: user["id"] for user in users}
-        selected_manager_name = st.selectbox("Manage as", list(user_options.keys()), key="app_manager")
-        manager_id = user_options[selected_manager_name]
-
-        if poc['owner']['id'] == manager_id:
-            applications_for_poc = get_applications_for_poc(poc_id)
-            if applications_for_poc:
-                for app in applications_for_poc:
-                    st.write(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})")
-                    current_status = app['status']
-                    new_status = st.selectbox(
-                        "Update Status",
-                        ["Submitted", "Under Review", "Accepted", "Rejected", "Selected"],
-                        index=["Submitted", "Under Review", "Accepted", "Rejected", "Selected"].index(current_status),
-                        key=f"status_{app['id']}"
-                    )
-                    if new_status != current_status:
-                        if update_application_status(app['id'], new_status):
-                            st.success(f"Application status for {app['applicant']['full_name']} updated to {new_status}!")
-                            st.rerun()
-                        else:
-                            st.error("Failed to update application status.")
-                    st.write("---")
+        if st.session_state.current_user_id:
+            manager_id = st.session_state.current_user_id
+            if poc['owner']['id'] == manager_id:
+                applications_for_poc = get_applications_for_poc(poc_id)
+                if applications_for_poc:
+                    for app in applications_for_poc:
+                        st.write(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})")
+                        current_status = app['status']
+                        new_status = st.selectbox(
+                            "Update Status",
+                            ["Submitted", "Under Review", "Accepted", "Rejected", "Selected"],
+                            index=["Submitted", "Under Review", "Accepted", "Rejected", "Selected"].index(current_status),
+                            key=f"status_{app['id']}"
+                        )
+                        if new_status != current_status:
+                            if update_application_status(app['id'], new_status):
+                                st.success(f"Application status for {app['applicant']['full_name']} updated to {new_status}!")
+                                st.rerun()
+                            else:
+                                st.error("Failed to update application status.")
+                        st.write("---")
+                else:
+                    st.write("No applications for this POC yet.")
             else:
-                st.write("No applications for this POC yet.")
+                st.info("You are not the owner of this POC, so you cannot manage applications.")
+        else:
+            st.warning("Please select a user from the sidebar to manage applications.")
 
 elif st.session_state.page == "view_applications":
     st.title("View Applications")
@@ -227,43 +251,41 @@ elif st.session_state.page == "view_applications":
 
 elif st.session_state.page == "my_pocs":
     st.title("My POCs")
-    users = get_users()
-    user_options = {user["full_name"]: user["id"] for user in users}
-    selected_user_name = st.selectbox("Select Your User Account", list(user_options.keys()))
-    owner_id = user_options[selected_user_name]
-
-    my_pocs = get_my_pocs(owner_id)
-    if my_pocs:
-        for poc in my_pocs:
-            with st.container():
-                st.subheader(poc["title"])
-                st.write(poc["description"])
-                if st.button("Delete", key=f"delete_poc_{poc['id']}"):
-                    if delete_poc(poc["id"], owner_id):
-                        st.success("POC deleted successfully!")
-                        st.rerun()
-                    else:
-                        st.error("Failed to delete POC.")
-                if st.button("View Details", key=f"my_poc_details_{poc['id']}"):
-                    st.session_state.page = "poc_details"
-                    st.session_state.poc_id = poc["id"]
+    if st.session_state.current_user_id:
+        owner_id = st.session_state.current_user_id
+        my_pocs = get_my_pocs(owner_id)
+        if my_pocs:
+            for poc in my_pocs:
+                with st.container():
+                    st.subheader(poc["title"])
+                    st.write(poc["description"])
+                    if st.button("Delete", key=f"delete_poc_{poc['id']}"):
+                        if delete_poc(poc["id"], owner_id):
+                            st.success("POC deleted successfully!")
+                            st.rerun()
+                        else:
+                            st.error("Failed to delete POC.")
+                    if st.button("View Details", key=f"my_poc_details_{poc['id']}"):
+                        st.session_state.page = "poc_details"
+                        st.session_state.poc_id = poc["id"]
+        else:
+            st.write("You have not posted any POCs yet.")
     else:
-        st.write("You have not posted any POCs yet.")
+        st.warning("Please select a user from the sidebar to view your POCs.")
 
 elif st.session_state.page == "my_applications":
     st.title("My Applications")
-    users = get_users()
-    user_options = {user["full_name"]: user["id"] for user in users}
-    selected_user_name = st.selectbox("Select Your User Account", list(user_options.keys()))
-    applicant_id = user_options[selected_user_name]
-
-    my_applications = get_applications_by_applicant(applicant_id)
-    if my_applications:
-        for app in my_applications:
-            with st.container():
-                st.subheader(f"POC: {app['poc']['title']}")
-                st.write(f"Status: {app['status']}")
-                st.write(f"Description: {app['poc']['description']}")
-                st.write("---")
+    if st.session_state.current_user_id:
+        applicant_id = st.session_state.current_user_id
+        my_applications = get_applications_by_applicant(applicant_id)
+        if my_applications:
+            for app in my_applications:
+                with st.container():
+                    st.subheader(f"POC: {app['poc']['title']}")
+                    st.write(f"Status: {app['status']}")
+                    st.write(f"Description: {app['poc']['description']}")
+                    st.write("---")
+        else:
+            st.write("You have not applied to any POCs yet.")
     else:
-        st.write("You have not applied to any POCs yet.")
+        st.warning("Please select a user from the sidebar to view your applications.")
