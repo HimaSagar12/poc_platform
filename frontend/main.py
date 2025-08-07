@@ -277,7 +277,9 @@ elif st.session_state.page == "my_applications":
     st.title("My Applications")
     if st.session_state.current_user_id:
         applicant_id = st.session_state.current_user_id
+        st.write(f"Debugging: Current Applicant ID: {applicant_id}") # Debugging line
         my_applications = get_applications_by_applicant(applicant_id)
+        st.write(f"Debugging: Applications fetched: {my_applications}") # Debugging line
         if my_applications:
             for app in my_applications:
                 with st.container():
