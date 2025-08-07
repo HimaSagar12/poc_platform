@@ -46,6 +46,12 @@ def get_users():
         return response.json()
     return []
 
+def get_applications_for_poc(poc_id):
+    response = requests.get(f"{API_URL}/applications/poc/{poc_id}")
+    if response.status_code == 200:
+        return response.json()
+    return []
+
 # --- Streamlit App ---
 st.set_page_config(page_title="Recruitment Platform", layout="wide")
 
@@ -61,6 +67,8 @@ if st.sidebar.button("Register User"):
     st.session_state.page = "register_user"
 if st.sidebar.button("Create POC"):
     st.session_state.page = "create_poc"
+if st.sidebar.button("View Applications"):
+    st.session_state.page = "view_applications"
 
 # --- Page Content ---
 if st.session_state.page == "home":
@@ -147,3 +155,19 @@ elif st.session_state.page == "poc_details":
                 st.rerun()
             else:
                 st.error("Failed to submit application.")
+
+elif st.session_state.page == "view_applications":
+    st.title("View Applications")
+    pocs = get_pocs()
+    poc_options = {poc["title"]: poc["id"] for poc in pocs}
+    selected_poc_title = st.selectbox("Select POC", list(poc_options.keys()))
+    poc_id = poc_options[selected_poc_title]
+
+    applications = get_applications_for_poc(poc_id)
+    if applications:
+        for app in applications:
+            st.write(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})")
+            st.write(f"**Status:** {app['status']}")
+            st.write("---")
+    else:
+        st.write("No applications found for this POC.")
