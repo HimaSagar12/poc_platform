@@ -4,9 +4,7 @@ from typing import List
 from .. import crud, schemas, models
 from ..dependencies import get_db
 
-router = APIRouter(
-    prefix="/applications",
-)
+router = APIRouter()
 
 @router.post("/", response_model=schemas.Application)
 def create_application(application: schemas.ApplicationCreate, db: Session = Depends(get_db)):
