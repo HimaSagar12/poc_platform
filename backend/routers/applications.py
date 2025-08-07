@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.post("/", response_model=schemas.Application)
 def create_application(application: schemas.ApplicationCreate, db: Session = Depends(get_db)):
-    return crud.create_application(db=db, application=application, applicant_id=application.applicant_id)
+    return crud.create_application(db=db, application=application)
 
 @router.get("/poc/{poc_id}", response_model=List[schemas.Application])
 def read_applications_for_poc(poc_id: int, db: Session = Depends(get_db)):

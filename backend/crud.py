@@ -39,8 +39,8 @@ def get_application(db: Session, application_id: int):
 def get_applications_for_poc(db: Session, poc_id: int):
     return db.query(models.Application).filter(models.Application.poc_id == poc_id).all()
 
-def create_application(db: Session, application: schemas.ApplicationCreate, applicant_id: int):
-    db_application = models.Application(**application.dict(), applicant_id=applicant_id)
+def create_application(db: Session, application: schemas.ApplicationCreate):
+    db_application = models.Application(**application.dict())
     db.add(db_application)
     db.commit()
     db.refresh(db_application)
