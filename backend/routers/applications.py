@@ -25,5 +25,4 @@ def update_application_status(application_id: int, status: str, db: Session = De
 @router.get("/applicant/{applicant_id}", response_model=List[schemas.Application])
 def read_applications_by_applicant(applicant_id: int, db: Session = Depends(get_db)):
     applications = crud.get_applications_by_applicant(db, applicant_id=applicant_id)
-    print(f"Debugging: Applications from DB: {applications}") # Debugging line
     return applications

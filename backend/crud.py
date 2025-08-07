@@ -71,7 +71,11 @@ def update_application_status(db: Session, application_id: int, status: str):
     return db_application
 
 def get_applications_by_applicant(db: Session, applicant_id: int):
-    return db.query(models.Application).options(joinedload(models.Application.poc), joinedload(models.Application.applicant)).filter(models.Application.applicant_id == applicant_id).all()
+    applications = db.query(models.Application).options(joinedload(models.Application.poc), joinedload(models.Application.applicant)).filter(models.Application.applicant_id == applicant_id).all()
+    for app in applications:
+        if app.poc is None:
+            print(f"WARNING: Application ID {app.id} has a missing POC relationship.")
+    return applications
 
 # Comment CRUD
 def create_comment(db: Session, comment: schemas.CommentCreate):
