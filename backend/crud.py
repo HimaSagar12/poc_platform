@@ -52,7 +52,6 @@ def get_applications_for_poc(db: Session, poc_id: int):
 
 def create_application(db: Session, application: schemas.ApplicationCreate):
     application_data = application.dict()
-    print(f"Debugging: Creating application with data: {application_data}") # Debugging line
     db_application = models.Application(**application_data)
     db.add(db_application)
     db.commit()

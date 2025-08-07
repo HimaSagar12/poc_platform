@@ -41,6 +41,7 @@ class ApplicationCreate(ApplicationBase):
 class Application(ApplicationBase):
     id: int
     applicant: User
+    poc: POC  # Add this line
     status: str
 
     class Config:
