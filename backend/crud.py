@@ -51,7 +51,9 @@ def get_applications_for_poc(db: Session, poc_id: int):
     return db.query(models.Application).filter(models.Application.poc_id == poc_id).all()
 
 def create_application(db: Session, application: schemas.ApplicationCreate):
-    db_application = models.Application(**application.dict())
+    application_data = application.dict()
+    print(f"Debugging: Creating application with data: {application_data}") # Debugging line
+    db_application = models.Application(**application_data)
     db.add(db_application)
     db.commit()
     db.refresh(db_application)
