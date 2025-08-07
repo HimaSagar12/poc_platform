@@ -65,6 +65,9 @@ def update_application_status(db: Session, application_id: int, status: str):
         db.refresh(db_application)
     return db_application
 
+def get_applications_by_applicant(db: Session, applicant_id: int):
+    return db.query(models.Application).filter(models.Application.applicant_id == applicant_id).all()
+
 # Comment CRUD
 def create_comment(db: Session, comment: schemas.CommentCreate):
     db_comment = models.Comment(**comment.dict())

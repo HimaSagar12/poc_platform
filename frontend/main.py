@@ -62,6 +62,16 @@ def delete_poc(poc_id, owner_id):
     response = requests.delete(f"{API_URL}/pocs/{poc_id}?owner_id={owner_id}")
     return response.status_code == 200
 
+def get_applications_by_applicant(applicant_id):
+    response = requests.get(f"{API_URL}/applications/applicant/{applicant_id}")
+    if response.status_code == 200:
+        return response.json()
+    return []
+
+def update_application_status(application_id, status):
+    response = requests.put(f"{API_URL}/applications/{application_id}/status?status={status}")
+    return response.status_code == 200
+
 # --- Streamlit App ---
 st.set_page_config(page_title="Recruitment Platform", layout="wide")
 
@@ -81,6 +91,8 @@ if st.sidebar.button("View Applications"):
     st.session_state.page = "view_applications"
 if st.sidebar.button("My POCs"):
     st.session_state.page = "my_pocs"
+if st.sidebar.button("My Applications"):
+    st.session_state.page = "my_applications"
 
 # --- Page Content ---
 if st.session_state.page == "home":
@@ -168,6 +180,35 @@ elif st.session_state.page == "poc_details":
             else:
                 st.error("Failed to submit application.")
 
+        # Application Management for POC Owner
+        st.header("Manage Applications")
+        users = get_users()
+        user_options = {user["full_name"]: user["id"] for user in users}
+        selected_manager_name = st.selectbox("Manage as", list(user_options.keys()), key="app_manager")
+        manager_id = user_options[selected_manager_name]
+
+        if poc['owner']['id'] == manager_id:
+            applications_for_poc = get_applications_for_poc(poc_id)
+            if applications_for_poc:
+                for app in applications_for_poc:
+                    st.write(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})")
+                    current_status = app['status']
+                    new_status = st.selectbox(
+                        "Update Status",
+                        ["Submitted", "Under Review", "Accepted", "Rejected", "Selected"],
+                        index=["Submitted", "Under Review", "Accepted", "Rejected", "Selected"].index(current_status),
+                        key=f"status_{app['id']}"
+                    )
+                    if new_status != current_status:
+                        if update_application_status(app['id'], new_status):
+                            st.success(f"Application status for {app['applicant']['full_name']} updated to {new_status}!")
+                            st.rerun()
+                        else:
+                            st.error("Failed to update application status.")
+                    st.write("---")
+            else:
+                st.write("No applications for this POC yet.")
+
 elif st.session_state.page == "view_applications":
     st.title("View Applications")
     pocs = get_pocs()
@@ -208,3 +249,21 @@ elif st.session_state.page == "my_pocs":
                     st.session_state.poc_id = poc["id"]
     else:
         st.write("You have not posted any POCs yet.")
+
+elif st.session_state.page == "my_applications":
+    st.title("My Applications")
+    users = get_users()
+    user_options = {user["full_name"]: user["id"] for user in users}
+    selected_user_name = st.selectbox("Select Your User Account", list(user_options.keys()))
+    applicant_id = user_options[selected_user_name]
+
+    my_applications = get_applications_by_applicant(applicant_id)
+    if my_applications:
+        for app in my_applications:
+            with st.container():
+                st.subheader(f"POC: {app['poc']['title']}")
+                st.write(f"Status: {app['status']}")
+                st.write(f"Description: {app['poc']['description']}")
+                st.write("---")
+    else:
+        st.write("You have not applied to any POCs yet.")
