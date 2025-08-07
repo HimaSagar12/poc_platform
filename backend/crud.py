@@ -32,6 +32,17 @@ def create_poc(db: Session, poc: schemas.POCCreate):
     db.refresh(db_poc)
     return db_poc
 
+def get_pocs_by_owner(db: Session, owner_id: int):
+    return db.query(models.POC).filter(models.POC.owner_id == owner_id).all()
+
+def delete_poc(db: Session, poc_id: int):
+    db_poc = db.query(models.POC).filter(models.POC.id == poc_id).first()
+    if db_poc:
+        db.delete(db_poc)
+        db.commit()
+    return db_poc
+
+
 # Application CRUD
 def get_application(db: Session, application_id: int):
     return db.query(models.Application).filter(models.Application.id == application_id).first()

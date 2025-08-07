@@ -52,6 +52,16 @@ def get_applications_for_poc(poc_id):
         return response.json()
     return []
 
+def get_my_pocs(owner_id):
+    response = requests.get(f"{API_URL}/pocs/owner/{owner_id}")
+    if response.status_code == 200:
+        return response.json()
+    return []
+
+def delete_poc(poc_id, owner_id):
+    response = requests.delete(f"{API_URL}/pocs/{poc_id}?owner_id={owner_id}")
+    return response.status_code == 200
+
 # --- Streamlit App ---
 st.set_page_config(page_title="Recruitment Platform", layout="wide")
 
@@ -69,6 +79,8 @@ if st.sidebar.button("Create POC"):
     st.session_state.page = "create_poc"
 if st.sidebar.button("View Applications"):
     st.session_state.page = "view_applications"
+if st.sidebar.button("My POCs"):
+    st.session_state.page = "my_pocs"
 
 # --- Page Content ---
 if st.session_state.page == "home":
@@ -171,3 +183,28 @@ elif st.session_state.page == "view_applications":
             st.write("---")
     else:
         st.write("No applications found for this POC.")
+
+elif st.session_state.page == "my_pocs":
+    st.title("My POCs")
+    users = get_users()
+    user_options = {user["full_name"]: user["id"] for user in users}
+    selected_user_name = st.selectbox("Select Your User Account", list(user_options.keys()))
+    owner_id = user_options[selected_user_name]
+
+    my_pocs = get_my_pocs(owner_id)
+    if my_pocs:
+        for poc in my_pocs:
+            with st.container():
+                st.subheader(poc["title"])
+                st.write(poc["description"])
+                if st.button("Delete", key=f"delete_poc_{poc['id']}"):
+                    if delete_poc(poc["id"], owner_id):
+                        st.success("POC deleted successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete POC.")
+                if st.button("View Details", key=f"my_poc_details_{poc['id']}"):
+                    st.session_state.page = "poc_details"
+                    st.session_state.poc_id = poc["id"]
+    else:
+        st.write("You have not posted any POCs yet.")
