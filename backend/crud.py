@@ -47,8 +47,12 @@ def delete_poc(db: Session, poc_id: int):
 def get_application(db: Session, application_id: int):
     return db.query(models.Application).filter(models.Application.id == application_id).first()
 
+from sqlalchemy.orm import Session, joinedload
+from . import models, schemas
+
+# Application CRUD
 def get_applications_for_poc(db: Session, poc_id: int):
-    return db.query(models.Application).filter(models.Application.poc_id == poc_id).all()
+    return db.query(models.Application).options(joinedload(models.Application.poc)).filter(models.Application.poc_id == poc_id).all()
 
 def create_application(db: Session, application: schemas.ApplicationCreate):
     application_data = application.dict()
@@ -67,7 +71,7 @@ def update_application_status(db: Session, application_id: int, status: str):
     return db_application
 
 def get_applications_by_applicant(db: Session, applicant_id: int):
-    return db.query(models.Application).filter(models.Application.applicant_id == applicant_id).all()
+    return db.query(models.Application).options(joinedload(models.Application.poc)).filter(models.Application.applicant_id == applicant_id).all()
 
 # Comment CRUD
 def create_comment(db: Session, comment: schemas.CommentCreate):
