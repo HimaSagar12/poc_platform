@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
-from app.routers import users, pocs, applications, comments, reviews
+from app.routers import users, pocs, applications, comments, reviews, notifications
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,4 +26,3 @@ app.include_router(applications.router, prefix="/applications", tags=["applicati
 app.include_router(comments.router, tags=["comments"])
 app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
-ications"])
