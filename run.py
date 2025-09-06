@@ -1,6 +1,20 @@
 import subprocess
 import sys
 import os
+import time
+import socket
+
+def wait_for_port(port, host='127.0.0.1', timeout=30.0):
+    """Wait until a port starts accepting TCP connections."""
+    start_time = time.perf_counter()
+    while True:
+        try:
+            with socket.create_connection((host, port), timeout=timeout):
+                break
+        except (socket.timeout, ConnectionRefusedError):
+            time.sleep(0.1)
+            if time.perf_counter() - start_time >= timeout:
+                raise TimeoutError(f'Waited too long for the port {port} on host {host} to start accepting connections.')
 
 def main():
     # Get the absolute path to the directory containing run.py
@@ -13,22 +27,24 @@ def main():
         cwd=app_dir,
     )
 
-    # Start the frontend (Streamlit)
-    # We add a small delay to ensure the backend is up before the frontend starts
     try:
-        import time
-        time.sleep(5)
-    except ImportError:
-        pass # If time module is not available for some reason, just continue
+        # Wait for the backend to be ready
+        wait_for_port(8000)
 
-    frontend_process = subprocess.Popen(
-        [sys.executable, "-m", "streamlit", "run", "frontend.py"],
-        cwd=app_dir,
-    )
+        # Start the frontend (Streamlit)
+        frontend_process = subprocess.Popen(
+            [sys.executable, "-m", "streamlit", "run", "frontend.py"],
+            cwd=app_dir,
+        )
 
-    # Wait for the processes to complete
-    backend_process.wait()
-    frontend_process.wait()
+        # Wait for the processes to complete
+        frontend_process.wait()
+
+    finally:
+        # Terminate the backend process when the frontend is closed
+        backend_process.terminate()
+        backend_process.wait()
+
 
 if __name__ == "__main__":
     main()
