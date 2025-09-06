@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from .. import crud, schemas, models
+from app import crud, schemas, models
 from ..dependencies import get_db
 
 router = APIRouter(
@@ -22,3 +22,4 @@ def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="Can only review applicants with 'Selected' status")
 
     return crud.create_review(db=db, review=review, reviewer_id=review.reviewer_id)
+

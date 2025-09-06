@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-from .. import crud, schemas, models
+from app import crud, schemas, models
 from ..dependencies import get_db
 
 router = APIRouter()
@@ -14,3 +14,4 @@ def create_comment(comment: schemas.CommentCreate, db: Session = Depends(get_db)
 def read_comments_for_poc(poc_id: int, db: Session = Depends(get_db)):
     comments = crud.get_comments_for_poc(db, poc_id=poc_id)
     return comments
+

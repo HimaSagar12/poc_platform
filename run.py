@@ -30,8 +30,8 @@ def main():
 
     # Start the backend (FastAPI)
     backend_process = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"],
-        cwd=app_dir,
+        [sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+        cwd=run_dir,
         stdout=backend_stdout_log,
         stderr=backend_stderr_log,
     )

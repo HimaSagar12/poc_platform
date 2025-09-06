@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from app import models, schemas
 
 # User CRUD
 def get_user(db: Session, user_id: int):
@@ -48,7 +48,7 @@ def get_application(db: Session, application_id: int):
     return db.query(models.Application).filter(models.Application.id == application_id).first()
 
 from sqlalchemy.orm import Session, joinedload
-from . import models, schemas
+from app import models, schemas
 
 # Application CRUD
 def get_applications_for_poc(db: Session, poc_id: int):
