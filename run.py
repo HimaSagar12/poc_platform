@@ -20,11 +20,20 @@ def main():
     # Get the absolute path to the directory containing run.py
     run_dir = os.path.dirname(os.path.abspath(__file__))
     app_dir = os.path.join(run_dir, "app")
+    log_dir = os.path.join(run_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+
+    # Open log files
+    backend_stdout_log = open(os.path.join(log_dir, "backend_stdout.log"), "w")
+    backend_stderr_log = open(os.path.join(log_dir, "backend_stderr.log"), "w")
+
 
     # Start the backend (FastAPI)
     backend_process = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"],
         cwd=app_dir,
+        stdout=backend_stdout_log,
+        stderr=backend_stderr_log,
     )
 
     try:
@@ -40,10 +49,16 @@ def main():
         # Wait for the processes to complete
         frontend_process.wait()
 
+    except TimeoutError as e:
+        print(e)
+        print("The backend failed to start. Check the logs in the 'logs' directory for more information.")
+
     finally:
         # Terminate the backend process when the frontend is closed
         backend_process.terminate()
         backend_process.wait()
+        backend_stdout_log.close()
+        backend_stderr_log.close()
 
 
 if __name__ == "__main__":
