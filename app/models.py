@@ -71,7 +71,7 @@ class Review(Base):
 
     reviewer = relationship("User", foreign_keys=[reviewer_id], back_populates="reviews_given")
     reviewee = relationship("User", foreign_keys=[reviewee_id], back_populates="reviews_received")
-tification(Base):
+class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(Integer, primary_key=True, index=True)
