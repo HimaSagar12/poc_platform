@@ -225,10 +225,7 @@ elif st.session_state.page == "poc_details":
         comments = get_comments(poc_id)
         if comments:
             for comment in comments:
-                if st.button(f"**{comment['author']['full_name']}**", key=f"comment_author_{comment['id']}"):
-                    st.session_state.page = "user_profile"
-                    st.session_state.profile_user_id = comment['author']['id']
-                st.write(comment['text'])
+                display_comment_and_replies(comment, poc_id)
 
         if st.session_state.current_user_id:
             author_id = st.session_state.current_user_id
@@ -364,6 +361,7 @@ elif st.session_state.page == "user_profile":
     if "profile_user_id" in st.session_state:
         user_details = get_user_details(st.session_state.profile_user_id)
         if user_details:
+            st.write(user_details.keys())
             st.subheader(user_details['full_name'])
             st.write(f"**Email:** {user_details['email']}")
             st.write(f"**Designation:** {user_details['designation']}")
