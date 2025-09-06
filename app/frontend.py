@@ -28,8 +28,8 @@ def get_comments(poc_id):
         return response.json()
     return []
 
-def post_comment(poc_id, text, author_id):
-    response = requests.post(f"{API_URL}/comments", json={"text": text, "poc_id": poc_id, "author_id": author_id})
+def post_comment(poc_id, text, author_id, parent_id=None):
+    response = requests.post(f"{API_URL}/comments", json={"text": text, "poc_id": poc_id, "author_id": author_id, "parent_id": parent_id})
     return response.status_code == 200
 
 def create_poc(title, description, owner_id):
@@ -71,6 +71,48 @@ def get_applications_by_applicant(applicant_id):
 def update_application_status(application_id, status):
     response = requests.put(f"{API_URL}/applications/{application_id}/status?status={status}")
     return response.status_code == 200
+
+def get_notifications(user_id):
+    response = requests.get(f"{API_URL}/notifications/{user_id}")
+    if response.status_code == 200:
+        return response.json()
+    return []
+
+def mark_notification_as_read(notification_id):
+    response = requests.put(f"{API_URL}/notifications/{notification_id}/read")
+    return response.status_code == 200
+
+def create_review(poc_id, reviewer_id, reviewee_id, rating, comment):
+    response = requests.post(f"{API_URL}/reviews/", json={"poc_id": poc_id, "reviewer_id": reviewer_id, "reviewee_id": reviewee_id, "rating": rating, "comment": comment})
+    return response.status_code == 200
+
+def get_user_details(user_id):
+    response = requests.get(f"{API_URL}/users/{user_id}")
+    if response.status_code == 200:
+        return response.json()
+    return None
+
+def display_comment_and_replies(comment, poc_id, level=0):
+    with st.container():
+        st.markdown(f"{'&nbsp;' * 4 * level}**{comment['author']['full_name']}**: {comment['text']}")
+        
+        with st.expander("Reply", key=f"reply_expander_{comment['id']}"):
+            with st.form(f"reply_form_{comment['id']}"):
+                reply_text = st.text_area("Write a reply...")
+                submitted = st.form_submit_button("Submit Reply")
+                if submitted:
+                    if st.session_state.current_user_id:
+                        if post_comment(poc_id, reply_text, st.session_state.current_user_id, parent_id=comment['id']):
+                            st.success("Reply posted successfully!")
+                            st.rerun()
+                        else:
+                            st.error("Failed to post reply.")
+                    else:
+                        st.warning("Please select a user to post a reply.")
+
+        for reply in comment['replies']:
+            display_comment_and_replies(reply, poc_id, level + 1)
+
 
 # --- Streamlit App ---
 st.set_page_config(page_title="Recruitment Platform", layout="wide")
@@ -117,6 +159,12 @@ if st.sidebar.button("My POCs"):
     st.session_state.page = "my_pocs"
 if st.sidebar.button("My Applications"):
     st.session_state.page = "my_applications"
+
+if st.session_state.current_user_id:
+    notifications = get_notifications(st.session_state.current_user_id)
+    unread_notifications = [n for n in notifications if not n['is_read']]
+    if st.sidebar.button(f"Notifications ({len(unread_notifications)})"):
+        st.session_state.page = "notifications"
 
 # --- Page Content ---
 if st.session_state.page == "home":
@@ -169,13 +217,18 @@ elif st.session_state.page == "poc_details":
     if poc:
         st.title(poc["title"])
         st.write(poc["description"])
-        st.write(f"Posted by: {poc['owner']['full_name']} ({poc['owner']['designation']})")
+        if st.button(f"Posted by: {poc['owner']['full_name']} ({poc['owner']['designation']})", key=f"owner_{poc['owner']['id']}"):
+            st.session_state.page = "user_profile"
+            st.session_state.profile_user_id = poc['owner']['id']
 
         st.header("Comments")
         comments = get_comments(poc_id)
         if comments:
             for comment in comments:
-                st.write(f"**{comment['author']['full_name']}**: {comment['text']}")
+                if st.button(f"**{comment['author']['full_name']}**", key=f"comment_author_{comment['id']}"):
+                    st.session_state.page = "user_profile"
+                    st.session_state.profile_user_id = comment['author']['id']
+                st.write(comment['text'])
 
         if st.session_state.current_user_id:
             author_id = st.session_state.current_user_id
@@ -211,7 +264,9 @@ elif st.session_state.page == "poc_details":
                 applications_for_poc = get_applications_for_poc(poc_id)
                 if applications_for_poc:
                     for app in applications_for_poc:
-                        st.write(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})")
+                        if st.button(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})", key=f"applicant_{app['id']}"):
+                            st.session_state.page = "user_profile"
+                            st.session_state.profile_user_id = app['applicant']['id']
                         current_status = app['status']
                         new_status = st.selectbox(
                             "Update Status",
@@ -225,6 +280,18 @@ elif st.session_state.page == "poc_details":
                                 st.rerun()
                             else:
                                 st.error("Failed to update application status.")
+                        if app['status'] == "Selected":
+                            with st.expander("Leave a Review"):
+                                with st.form(f"review_form_{app['id']}"):
+                                    rating = st.slider("Rating", 1, 5, 3)
+                                    comment = st.text_area("Comment")
+                                    submitted = st.form_submit_button("Submit Review")
+                                    if submitted:
+                                        if create_review(poc_id, manager_id, app['applicant']['id'], rating, comment):
+                                            st.success("Review submitted successfully!")
+                                            st.rerun()
+                                        else:
+                                            st.error("Failed to submit review.")
                         st.write("---")
                 else:
                     st.write("No applications for this POC yet.")
@@ -243,7 +310,9 @@ elif st.session_state.page == "view_applications":
     applications = get_applications_for_poc(poc_id)
     if applications:
         for app in applications:
-            st.write(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})")
+            if st.button(f"**Applicant:** {app['applicant']['full_name']} ({app['applicant']['designation']})", key=f"view_applicant_{app['id']}"):
+                st.session_state.page = "user_profile"
+                st.session_state.profile_user_id = app['applicant']['id']
             st.write(f"**Status:** {app['status']}")
             st.write("---")
     else:
@@ -289,3 +358,48 @@ elif st.session_state.page == "my_applications":
             st.write("You have not applied to any POCs yet.")
     else:
         st.warning("Please select a user from the sidebar to view your applications.")
+
+elif st.session_state.page == "user_profile":
+    st.title("User Profile")
+    if "profile_user_id" in st.session_state:
+        user_details = get_user_details(st.session_state.profile_user_id)
+        if user_details:
+            st.subheader(user_details['full_name'])
+            st.write(f"**Email:** {user_details['email']}")
+            st.write(f"**Designation:** {user_details['designation']}")
+            st.write(f"**Average Rating:** {user_details['average_rating']:.2f}")
+
+            st.header("Reviews")
+            if user_details['reviews_received']:
+                for review in user_details['reviews_received']:
+                    st.write(f"**Rating:** {review['rating']}/5")
+                    st.write(f"**Comment:** {review['comment']}")
+                    st.write(f"**Reviewer:** {review['reviewer']['full_name']}")
+                    st.write("---")
+            else:
+                st.write("No reviews yet.")
+    else:
+        st.warning("No user selected for profile view.")
+
+elif st.session_state.page == "notifications":
+    st.title("Notifications")
+    if st.session_state.current_user_id:
+        notifications = get_notifications(st.session_state.current_user_id)
+        if notifications:
+            for notification in notifications:
+                with st.container():
+                    if notification['link']:
+                        st.markdown(f"[{notification['message']}]({notification['link']})")
+                    else:
+                        st.write(notification['message'])
+                    
+                    if not notification['is_read']:
+                        if st.button("Mark as read", key=f"read_{notification['id']}"):
+                            mark_notification_as_read(notification['id'])
+                            st.rerun()
+                    st.write(f"_{notification['created_at']}_")
+                    st.write("---")
+        else:
+            st.write("You have no notifications.")
+    else:
+        st.warning("Please select a user to see notifications.")

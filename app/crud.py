@@ -106,3 +106,22 @@ def create_review(db: Session, review: schemas.ReviewCreate, reviewer_id: int):
     db.refresh(db_review)
 
     return db_review
+
+# Notification CRUD
+def create_notification(db: Session, user_id: int, message: str, link: str = None):
+    db_notification = models.Notification(user_id=user_id, message=message, link=link)
+    db.add(db_notification)
+    db.commit()
+    db.refresh(db_notification)
+    return db_notification
+
+def get_notifications_for_user(db: Session, user_id: int):
+    return db.query(models.Notification).filter(models.Notification.user_id == user_id).order_by(models.Notification.created_at.desc()).all()
+
+def mark_notification_as_read(db: Session, notification_id: int):
+    db_notification = db.query(models.Notification).filter(models.Notification.id == notification_id).first()
+    if db_notification:
+        db_notification.is_read = True
+        db.commit()
+        db.refresh(db_notification)
+    return db_notification

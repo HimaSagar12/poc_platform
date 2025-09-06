@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 import datetime
@@ -18,6 +18,7 @@ class User(Base):
     comments = relationship("Comment", back_populates="author")
     reviews_given = relationship("Review", foreign_keys='Review.reviewer_id', back_populates="reviewer")
     reviews_received = relationship("Review", foreign_keys='Review.reviewee_id', back_populates="reviewee")
+    notifications = relationship("Notification", back_populates="user")
 
 class POC(Base):
     __tablename__ = "pocs"
@@ -70,3 +71,14 @@ class Review(Base):
 
     reviewer = relationship("User", foreign_keys=[reviewer_id], back_populates="reviews_given")
     reviewee = relationship("User", foreign_keys=[reviewee_id], back_populates="reviews_received")
+tification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    message = Column(String)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    link = Column(String, nullable=True)
+
+    user = relationship("User", back_populates="notifications")

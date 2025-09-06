@@ -13,6 +13,8 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     average_rating: float
+    notifications: List['Notification'] = []
+    reviews_received: List['Review'] = []
 
     class Config:
         orm_mode = True
@@ -76,6 +78,22 @@ class ReviewCreate(ReviewBase):
 class Review(ReviewBase):
     id: int
     reviewer: User
+
+    class Config:
+        orm_mode = True
+
+
+class NotificationBase(BaseModel):
+    message: str
+    link: Optional[str] = None
+
+class NotificationCreate(NotificationBase):
+    user_id: int
+
+class Notification(NotificationBase):
+    id: int
+    is_read: bool
+    created_at: datetime.datetime
 
     class Config:
         orm_mode = True
