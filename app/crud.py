@@ -30,6 +30,8 @@ def create_poc(db: Session, poc: schemas.POCCreate):
     db.add(db_poc)
     db.commit()
     db.refresh(db_poc)
+    # Notify POC owner
+    create_notification(db, user_id=db_poc.owner_id, message=f"New POC '{db_poc.title}' has been created.", link=f"/pocs/{db_poc.id}")
     return db_poc
 
 def get_pocs_by_owner(db: Session, owner_id: int):
@@ -60,6 +62,9 @@ def create_application(db: Session, application: schemas.ApplicationCreate):
     db.add(db_application)
     db.commit()
     db.refresh(db_application)
+    # Notify POC owner
+    poc = get_poc(db, application.poc_id)
+    create_notification(db, user_id=poc.owner_id, message=f"A new application has been submitted for your POC '{poc.title}'.", link=f"/pocs/{poc.id}/applications")
     return db_application
 
 def update_application_status(db: Session, application_id: int, status: str):
@@ -68,6 +73,8 @@ def update_application_status(db: Session, application_id: int, status: str):
         db_application.status = status
         db.commit()
         db.refresh(db_application)
+        # Notify applicant
+        create_notification(db, user_id=db_application.applicant_id, message=f"The status of your application for POC '{db_application.poc.title}' has been updated to '{status}'.", link=f"/applications/{db_application.id}")
     return db_application
 
 def get_applications_by_applicant(db: Session, applicant_id: int):
@@ -83,6 +90,15 @@ def create_comment(db: Session, comment: schemas.CommentCreate):
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)
+    # Notify POC owner
+    poc = get_poc(db, comment.poc_id)
+    if poc.owner_id != comment.author_id:
+        create_notification(db, user_id=poc.owner_id, message=f"A new comment has been posted on your POC '{poc.title}'.", link=f"/pocs/{poc.id}")
+    # Notify parent comment author
+    if comment.parent_id:
+        parent_comment = db.query(models.Comment).filter(models.Comment.id == comment.parent_id).first()
+        if parent_comment and parent_comment.author_id != comment.author_id:
+            create_notification(db, user_id=parent_comment.author_id, message=f"Someone has replied to your comment on POC '{poc.title}'.", link=f"/pocs/{poc.id}")
     return db_comment
 
 def get_comments_for_poc(db: Session, poc_id: int):
@@ -104,6 +120,9 @@ def create_review(db: Session, review: schemas.ReviewCreate, reviewer_id: int):
         reviewee.average_rating = 0.0
     db.commit()
     db.refresh(db_review)
+
+    # Notify reviewee
+    create_notification(db, user_id=review.reviewee_id, message=f"You have received a new review.", link=f"/users/{review.reviewee_id}")
 
     return db_review
 
