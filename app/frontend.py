@@ -184,7 +184,7 @@ elif st.session_state.page == "register_user":
     with st.form("register_form"):
         full_name = st.text_input("Full Name")
         email = st.text_input("Email")
-        designation = st.text_input("Designation")
+        designation = st.selectbox("Designation", ["i07", "i08", "i09", "i10", "i11", "i12", "i13", "i14", "i15", "i16"])
         password = st.text_input("Password", type="password")
         submitted = st.form_submit_button("Register")
         if submitted:

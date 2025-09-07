@@ -1,11 +1,24 @@
 from pydantic import BaseModel
 from typing import List, Optional
 import datetime
+from enum import Enum
+
+class Designation(str, Enum):
+    i07 = "i07"
+    i08 = "i08"
+    i09 = "i09"
+    i10 = "i10"
+    i11 = "i11"
+    i12 = "i12"
+    i13 = "i13"
+    i14 = "i14"
+    i15 = "i15"
+    i16 = "i16"
 
 class UserBase(BaseModel):
     email: str
     full_name: str
-    designation: str
+    designation: Designation
 
 class UserCreate(UserBase):
     password: str

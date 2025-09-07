@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text, Boolean, CheckConstraint
 from sqlalchemy.orm import relationship
 from app.database import Base
 import datetime
@@ -10,7 +10,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     password = Column(String)
     full_name = Column(String)
-    designation = Column(String)
+    designation = Column(String, CheckConstraint("designation IN ('i07', 'i08', 'i09', 'i10', 'i11', 'i12', 'i13', 'i14', 'i15', 'i16')"))
     average_rating = Column(Float, default=0.0)
 
     pocs = relationship("POC", back_populates="owner")
