@@ -21,5 +21,5 @@ def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db)):
     if not application or application.status != "Selected":
         raise HTTPException(status_code=403, detail="Can only review applicants with 'Selected' status")
 
-    return crud.create_review(db=db, review=review, reviewer_id=review.reviewer_id)
+    return crud.create_review(db=db, review=review)
 

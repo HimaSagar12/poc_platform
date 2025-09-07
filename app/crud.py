@@ -105,8 +105,8 @@ def get_comments_for_poc(db: Session, poc_id: int):
     return db.query(models.Comment).filter(models.Comment.poc_id == poc_id, models.Comment.parent_id.is_(None)).all()
 
 # Review CRUD
-def create_review(db: Session, review: schemas.ReviewCreate, reviewer_id: int):
-    db_review = models.Review(**review.dict(), reviewer_id=reviewer_id)
+def create_review(db: Session, review: schemas.ReviewCreate):
+    db_review = models.Review(**review.dict())
     db.add(db_review)
     db.commit()
 
