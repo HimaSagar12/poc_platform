@@ -17,7 +17,7 @@ class User(UserBase):
     reviews_received: List['Review'] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class POCBase(BaseModel):
     title: str
@@ -32,7 +32,7 @@ class POC(POCBase):
     owner: User
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ApplicationBase(BaseModel):
     poc_id: int
@@ -47,7 +47,7 @@ class Application(ApplicationBase):
     status: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class CommentBase(BaseModel):
     text: str
@@ -64,7 +64,7 @@ class Comment(CommentBase):
     replies: List['Comment'] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ReviewBase(BaseModel):
     rating: float
@@ -80,7 +80,7 @@ class Review(ReviewBase):
     reviewer: User
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class NotificationBase(BaseModel):
@@ -96,6 +96,6 @@ class Notification(NotificationBase):
     created_at: datetime.datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
