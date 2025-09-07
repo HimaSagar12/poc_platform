@@ -3,9 +3,7 @@ from sqlalchemy.orm import Session
 from app import crud, schemas, models
 from ..dependencies import get_db
 
-router = APIRouter(
-    prefix="/reviews",
-)
+router = APIRouter()
 
 @router.get("/test")
 def test_endpoint():
