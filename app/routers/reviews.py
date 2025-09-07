@@ -9,6 +9,7 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.Review)
 def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db)):
+    print("create_review endpoint called")
     poc = crud.get_poc(db, review.poc_id)
     if not poc:
         raise HTTPException(status_code=404, detail="POC not found")
