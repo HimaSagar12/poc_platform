@@ -7,6 +7,10 @@ router = APIRouter(
     prefix="/reviews",
 )
 
+@router.get("/test")
+def test_endpoint():
+    return {"message": "test endpoint reached"}
+
 @router.post("/", response_model=schemas.Review)
 def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db)):
     print("create_review endpoint called")
